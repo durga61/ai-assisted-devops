@@ -1,18 +1,22 @@
 import ollama
 
 PROMPT = """
-ONLY Generate an ideal Dockerfile for {language} with best practices. Do not provide any description
-Include:
-- Base image
-- Installing dependencies
-- Setting working directory
-- Adding source code
-- Running the application
+Multistage Dockerfile for  {language} language following best practices wrt multistage builds, layer optmization and image sizing
 """
 
 def generate_dockerfile(language):
-    response = ollama.chat(model='llama3.1:8b', messages=[{'role': 'user', 'content': PROMPT.format(language=language)}])
-    return response['message']['content']
+    response = ollama.chat(model='gemma3:latest', messages=[
+        {
+        'role': 'user',
+        'content': PROMPT.format(language=language),
+        }],
+        stream=True
+        )
+
+    #return response['message']['content']
+    for chunk in response:
+        if 'content' in chunk['message']:
+            print(chunk['message']['content'], end='', flush=True)
 
 if __name__ == '__main__':
     language = input("Enter the programming language: ")
